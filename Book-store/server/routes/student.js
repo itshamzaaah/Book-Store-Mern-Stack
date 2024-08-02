@@ -1,0 +1,32 @@
+import express from 'express'
+import { Student } from '../models/Student.js';
+import bcrypt from 'bcrypt'
+// import { verifyAdmin } from './auth.js';
+
+const router = express.Router();
+
+router.post('/register',/* verifyAdmin*/ async (req, res) => {
+    try{
+        const {roll, username, grade, password} = req.body;
+        const student = await Student.findOne({username})
+        if(student){
+            return res.json({message: "student is registered"})
+        }
+        const hashPassword = await bcrypt.hash(password, 10)
+        const newstudent = new Student({
+            roll: roll,
+            username,
+            grade,
+            password: hashPassword
+
+        })
+
+        await newstudent.save()
+        return res.json({registered: true})
+
+    } catch(err){
+        return res.json({message: "Error in registration student"})
+    }
+} )
+
+export  {router as studentRouter}
